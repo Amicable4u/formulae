@@ -1,6 +1,5 @@
-# Documentation: https://docs.brew.sh/Formula-Cookbook
-#                https://rubydoc.brew.sh/Formula
-# PLEASE REMOVE ALL GENERATED COMMENTS BEFORE SUBMITTING YOUR PULL REQUEST!
+require 'fileutils'
+
 class BodyslideAndOutfitStudio < Formula
   desc ""
   homepage ""
@@ -15,10 +14,28 @@ class BodyslideAndOutfitStudio < Formula
   # https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.4/wxWidgets-3.2.4.tar.bz2
   depends_on "wxwidgets" => ["3.2.4", :build]
   depends_on "cmake" => :build
+  depends_on "glew" => :build
 
   resource "fbx" do
     url "https://www.autodesk.com/content/dam/autodesk/www/adn/fbx/2020-2-1/fbx202021_fbxsdk_clang_mac.pkg.tgz"
     sha256 "e6ea611a2d52107105680c9c57b6dbe99729fa95ef848539664f035d972bcb70"
+  end
+
+  def lin(filepath, text, lineno, *args, &block)
+    tempfile=File.open(filepath + ".tmp", 'w')
+    f=File.new(filepath)
+    ln = 0
+    f.each do |line|
+      ln += 1
+      tempfile<<line
+      if ln==lineno
+        tempfile << text + "\n"
+      end
+    end
+    f.close
+    tempfile.close
+  
+    FileUtils.mv(filepath + ".tmp", filepath)
   end
 
   def install
@@ -38,26 +55,48 @@ class BodyslideAndOutfitStudio < Formula
     # system("/usr/sbin/pkgutil", "--files", fbx_pkg) 
     # system("/usr/sbin/pkgutil", "--install-from-file", fbx_pkg)
 
-    # system("ln", "-s", "/Applications/Autodesk/FBX\ SDK", "./FBX\ SDK")
+    # system("ln", "-s", "FBX\ SDK", "./FBX\ SDK")
+    system("mv", "FBX\ SDK", "fbxsdk")
 
-    system "echo", "time to run ls"
-    system "ls", "-ltra"
+    # system "echo", "time to run ls"
+    # system "ls", "-ltra"
 
-    raise "hell"
-    # system "cmake", "-S", ".", "-B", "build", *std_cmake_args
-    # system "cmake", "--build", "build"
-    # system "cmake", "--install", "build"
-  end
+    system "sed", "-i", "", "11s/.*/find_library(fbxsdk libfbxsdk.a PATHS ${fbxsdk_dir}\\/lib\\/clang\\/release\\/)/", "CMakeLists.txt"
+    # system "sed", "-i", "'11i\'$'\n''message(PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")'", "CMakeLists.txt"
+#     system "sed", "-i", "''", "'11i\\
+# message(PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")\\
+# '", "CMakeLists.txt"
+    # system "sed", "-i", "''", "-e", "11s/^//p; 2s/^.*/text to insert/" file
+    # sed -i '' '11i\
+# message(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")' CMakeLists.txt
+    # awk 'NR==2{print 1.5}1' CMakeLists.txt > tmp && mv tmp CMakeLists.txt
 
-  test do
-    # `test do` will create, run in and delete a temporary directory.
-    #
-    # verify the functionality of the software.
-    # Run the test with `brew test BodySlide-and-Outfit-Studio`. Options passed
-    # to `brew install` such as `--HEAD` also need to be provided to `brew test`.
-    #
-    # The installed folder is not in the path, so use the entire path to any
-    # executables being tested: `system "#{bin}/program", "do", "something"`.
-    system "false"
+    # awk 'NR==11{print "message(PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")"}1' CMakeLists.txt > tmp
+#     system "awk", "'NR==11{print \"message(PROJECT_SOURCE_DIR=\\\"${PROJECT_SOURCE_DIR}\\\")\"}1'", "CMakeLists.txt", ">", "tmp"
+#     system "mv", "tmp", "CMakeLists.txt"
+
+# system "function lin {
+#   awk 'NR=='$2'{print \"'$1'\"}1' $3
+# }"
+
+# system "export", "txt=\"message(PROJECT_SOURCE_DIR=\\\"\${PROJECT_SOURCE_DIR}\\\")\""
+
+# function lin {
+#   awk 'NR=='$2'{print "'$1'"}1' $3
+# }
+
+    # text = "message(PROJECT_SOURCE_DIR=\\\"\\${PROJECT_SOURCE_DIR}\\\")"
+
+    # system "lin", "#{text}", "11", "CMakelists.txt"
+    
+    lin("CMakeLists.txt", "message(PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")", 2)
+
+    system "mkdir", "Release"
+    cd "Release" do
+      system "cmake", "-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_CXX_FLAGS=\"-Wall\"", ".."
+      system "make"
+    end
+
+    # raise "hell"
   end
 end
