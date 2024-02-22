@@ -48,32 +48,26 @@ class BodyslideAndOutfitStudio < Formula
     # Install the staged .pkg
     # TODO: may not need --expand, could just make the path longer
     system "pkgutil", "--expand-full", fbx_pkg, "fbx_pkg_contents"
-    # system "pkgutil", "--expand-full", fbx_pkg_contents/"", "fbx_pkg_contents"
 
     buildpath.install Dir["fbx_pkg_contents/Root.pkg/Payload/Applications/Autodesk/FBX\ SDK"]
-    # system("/usr/sbin/pkgutil", "--pkg-info-plist", fbx_pkg) 
-    # system("/usr/sbin/pkgutil", "--files", fbx_pkg) 
-    # system("/usr/sbin/pkgutil", "--install-from-file", fbx_pkg)
-
-    # system("ln", "-s", "FBX\ SDK", "./FBX\ SDK")
     system("mv", "FBX\ SDK", "fbxsdk")
 
-    # system "echo", "time to run ls"
-    # system "ls", "-ltra"
 
     system "sed", "-i", "", "10s/.*/set(fbxsdk_dir .\\/fbxsdk)/", "CMakeLists.txt"
     system "sed", "-i", "", "11s/.*/find_library(fbxsdk fbxsdk PATHS ${fbxsdk_dir}\\/2020.2.1\\/lib\\/clang\\/release)/", "CMakeLists.txt"
     
-    # lin("CMakeLists.txt", "message(PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")", 2)
-    
 
     lin("CMakeLists.txt", "set(CMAKE_FIND_DEBUG_MODE TRUE)", 2)
     lin("CMakeLists.txt", "set(CMAKE_VERBOSE_MAKEFILE on)", 3)
-    # lin("CMakeLists.txt", "message(\"My test's working directory: ${test_dir}\")", 3)
+    lin("CMakeLists.txt", "set(GLEW_LIBRARIES #{Formula["glew"].opt_lib}/libGLEW.dylib)", 13)
+    lin("CMakeLists.txt", "set(GLEW_INCLUDE_DIRS #{Formula["glew"].opt_include})", 14)
+    # lin("CMakeLists.txt", "set(GLEW_LIBRARY #{Formula["glew"].opt_lib}/libGLEW.dylib)", 13)
+    # lin("CMakeLists.txt", "target_link_libraries(OutfitStudio #{Formula["glew"].opt_lib}/libGLEW.dylib)", 104)
+    # lin("CMakeLists.txt", "target_link_libraries(BodySlide #{Formula["glew"].opt_lib}/libGLEW.dylib)", 104)
 
     system "mkdir", "Release"
     cd "Release" do
-      system "cmake", "-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_CXX_FLAGS=\"-Wall\"", ".."
+      system "cmake", "-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_CXX_FLAGS=\"-Wall\"", "-DGLEW_DIR=#{Formula["glew"].opt_lib}", "-DGLEW_LIBRARY=#{Formula["glew"].opt_lib}/libGLEW.dylib", ".."
       system "make"
     end
 
