@@ -61,35 +61,15 @@ class BodyslideAndOutfitStudio < Formula
     # system "echo", "time to run ls"
     # system "ls", "-ltra"
 
-    system "sed", "-i", "", "11s/.*/find_library(fbxsdk libfbxsdk.a PATHS ${fbxsdk_dir}\\/lib\\/clang\\/release\\/)/", "CMakeLists.txt"
-    # system "sed", "-i", "'11i\'$'\n''message(PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")'", "CMakeLists.txt"
-#     system "sed", "-i", "''", "'11i\\
-# message(PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")\\
-# '", "CMakeLists.txt"
-    # system "sed", "-i", "''", "-e", "11s/^//p; 2s/^.*/text to insert/" file
-    # sed -i '' '11i\
-# message(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")' CMakeLists.txt
-    # awk 'NR==2{print 1.5}1' CMakeLists.txt > tmp && mv tmp CMakeLists.txt
-
-    # awk 'NR==11{print "message(PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")"}1' CMakeLists.txt > tmp
-#     system "awk", "'NR==11{print \"message(PROJECT_SOURCE_DIR=\\\"${PROJECT_SOURCE_DIR}\\\")\"}1'", "CMakeLists.txt", ">", "tmp"
-#     system "mv", "tmp", "CMakeLists.txt"
-
-# system "function lin {
-#   awk 'NR=='$2'{print \"'$1'\"}1' $3
-# }"
-
-# system "export", "txt=\"message(PROJECT_SOURCE_DIR=\\\"\${PROJECT_SOURCE_DIR}\\\")\""
-
-# function lin {
-#   awk 'NR=='$2'{print "'$1'"}1' $3
-# }
-
-    # text = "message(PROJECT_SOURCE_DIR=\\\"\\${PROJECT_SOURCE_DIR}\\\")"
-
-    # system "lin", "#{text}", "11", "CMakelists.txt"
+    system "sed", "-i", "", "10s/.*/set(fbxsdk_dir .\\/fbxsdk)/", "CMakeLists.txt"
+    system "sed", "-i", "", "11s/.*/find_library(fbxsdk fbxsdk PATHS ${fbxsdk_dir}\\/2020.2.1\\/lib\\/clang\\/release)/", "CMakeLists.txt"
     
-    lin("CMakeLists.txt", "message(PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")", 2)
+    # lin("CMakeLists.txt", "message(PROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")", 2)
+    
+
+    lin("CMakeLists.txt", "set(CMAKE_FIND_DEBUG_MODE TRUE)", 2)
+    lin("CMakeLists.txt", "set(CMAKE_VERBOSE_MAKEFILE on)", 3)
+    # lin("CMakeLists.txt", "message(\"My test's working directory: ${test_dir}\")", 3)
 
     system "mkdir", "Release"
     cd "Release" do
